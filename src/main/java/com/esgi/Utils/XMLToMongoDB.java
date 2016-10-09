@@ -3,6 +3,7 @@ package com.esgi.Utils;
 
 import com.mongodb.*;
 import com.mongodb.util.JSON;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
@@ -10,6 +11,7 @@ import org.json.XML;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
 
 /**
  * Created by Karthi on 09/10/2016.
@@ -60,13 +62,20 @@ public class XMLToMongoDB {
         try {
 
             Mongo mongo = new Mongo("localhost", 27017);
-            DB db = mongo.getDB("article");
-            DBCollection collection = db.getCollection("Xml");
+            DB db = mongo.getDB("esgi");
+            DBCollection collection = db.getCollection("article");
 
-            // convert JSON to DBObject directly
-            DBObject dbObject = (DBObject) JSON.parse(json.toString());
+            JSONArray json_main = json.getJSONObject("dblp").getJSONArray("article");
 
-            collection.insert(dbObject);
+
+            for(int i = 0 ; i < json_main.length() ; i++){
+
+                JSONObject current_object = json_main.getJSONObject(i);
+                DBObject dbObject = (DBObject) JSON.parse(current_object.toString());
+                collection.insert(dbObject);
+
+            }
+
 
             DBCursor cursorDoc = collection.find();
             while (cursorDoc.hasNext()) {
